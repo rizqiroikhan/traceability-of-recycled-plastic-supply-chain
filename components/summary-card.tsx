@@ -1,0 +1,4 @@
+export function SummaryCard({ label, value, helper, tone = "forest", icon }: { label: string; value: string; helper: string; tone?: "forest" | "blue" | "amber" | "charcoal"; icon: string }) {
+  const tones = { forest: "bg-forest text-white", blue: "bg-recycled text-white", amber: "bg-amber text-white", charcoal: "bg-charcoal text-white" };
+  return <article className="rounded-3xl border border-forest/10 bg-white p-5 shadow-card sm:p-6"><div className="flex items-start justify-between gap-3"><div><p className="text-sm font-semibold text-charcoal/55">{label}</p><p className="mt-3 text-3xl font-bold tracking-tight text-charcoal">{value}</p></div><span className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-lg ${tones[tone]}`}>{icon}</span></div><p className="mt-4 text-xs font-medium text-charcoal/45">{helper}</p></article>;
+}
