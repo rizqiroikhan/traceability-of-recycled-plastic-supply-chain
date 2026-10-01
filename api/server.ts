@@ -59,6 +59,12 @@ function requireAdmin(req: Request, res: Response, next: NextFunction) {
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
+app.post('/api/admin/login', (req, res) => {
+  const { email, password } = req.body as { email?: unknown; password?: unknown };
+  if (email !== process.env.ADMIN_EMAIL || password !== process.env.ADMIN_PASSWORD) return error(res, 401, 'Invalid credentials');
+  return res.json({ token: process.env.ADMIN_SESSION_SECRET });
+});
+
 app.get('/api/batches', async (req, res) => {
   try {
     const values: unknown[] = [];
