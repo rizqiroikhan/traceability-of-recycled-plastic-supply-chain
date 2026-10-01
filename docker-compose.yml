@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: recycled-plastic-traceability-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-traceability_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-traceability_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-traceability}
+    ports:
+      - "5433:5432"
+    volumes:
+      - recycled_plastic_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  recycled_plastic_postgres_data:
+    name: recycled_plastic_postgres_data
