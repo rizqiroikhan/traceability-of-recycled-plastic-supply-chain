@@ -80,6 +80,39 @@ Before sending a prompt to Codex, make sure it answers:
 
 Ask Codex to fix only one page or issue per prompt.
 
+## Mandatory QC/QA Gate Before Every Commit
+
+Run this gate after each implementation step. Commit only when every applicable check passes.
+
+1. **Scope check**
+   - Review the changed files with `git diff --stat` and `git diff`.
+   - Confirm the change matches the current prompt and does not modify unrelated pages or behavior.
+
+2. **Feature check**
+   - Open the page changed in this step and test its main action.
+   - Check links, filters, status badges, dynamic routes, empty states, or not-found states that the change affects.
+   - Confirm pages read mock data from `lib/batch-data.ts` instead of duplicating it in components.
+
+3. **Responsive check**
+   - Check the changed page at desktop width and at **375px phone width**.
+   - Fix anything that wraps badly, overlaps, clips, becomes too small, or causes horizontal scrolling.
+   - If shared navigation or layout changed, check all existing pages at both widths.
+
+4. **Browser check**
+   - Confirm the page loads successfully and has no browser console errors.
+   - Confirm navbar links and page-specific links open the correct routes.
+
+5. **Code check**
+   - Run `npm run lint`.
+   - Run `npm run build`.
+   - Fix any error introduced by the current step before committing.
+
+6. **Commit readiness check**
+   - Run `git status` and confirm only intended files are included.
+   - Commit with the message assigned to the current step, then push.
+
+Use targeted checks for the page or shared component that changed. Repeat checks across every page only when the change affects shared layout, navigation, styling, or data.
+
 ## Prompt 1 — Project Foundation and Mock Data
 
 ```text
@@ -94,7 +127,7 @@ Visual identity: off-white #F7F8F3, forest green #245B45, recycled blue #3D7EA6,
 Keep mock data separate from components. Test desktop and 375px mobile width.
 ```
 
-Commit:
+Run the mandatory QC/QA gate, then commit:
 
 ```bash
 git add -A
@@ -112,7 +145,7 @@ Show a clear page heading, four summary cards, a batch-status overview, and rece
 Use the existing visual identity and shared layout. Keep the page easy to scan, responsive at 375px, and free of horizontal overflow. Change only files needed for this page.
 ```
 
-Commit:
+Run the mandatory QC/QA gate, then commit:
 
 ```bash
 git add -A
@@ -130,7 +163,7 @@ Show all batches as responsive cards with batch ID, material, source, weight, st
 Use the existing visual identity. Use 1 column on phones, 2 on tablets, and 3 on desktop. Test filtering, links, and 375px mobile width.
 ```
 
-Commit:
+Run the mandatory QC/QA gate, then commit:
 
 ```bash
 git add -A
@@ -148,7 +181,7 @@ Show the batch ID, material, source, weight, status, collection date, current lo
 Use the existing visual identity. Keep the timeline readable on desktop and 375px mobile width. Change only files needed for this page.
 ```
 
-Commit:
+Run the mandatory QC/QA gate, then commit:
 
 ```bash
 git add -A
@@ -166,7 +199,7 @@ Fix only visible consistency or responsive issues: navbar, spacing, card widths,
 Run lint and build, then report any remaining issue.
 ```
 
-Commit:
+Run the mandatory QC/QA gate, then commit:
 
 ```bash
 git add -A
