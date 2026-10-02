@@ -21,6 +21,14 @@ type BatchInput = {
   events?: unknown;
 };
 
+type EventInput = {
+  eventType?: unknown;
+  eventDate?: unknown;
+  location?: unknown;
+  actor?: unknown;
+  notes?: unknown;
+};
+
 function error(res: Response, status: number, message: string) {
   return res.status(status).json({ error: message });
 }
@@ -47,6 +55,16 @@ function validateBatch(body: BatchInput, partial = false) {
   if (body.processedAt !== undefined && !validDate(body.processedAt)) problems.push('processedAt must be YYYY-MM-DD or null');
   if (body.currentStatus !== undefined && (typeof body.currentStatus !== 'string' || !statuses.has(body.currentStatus))) problems.push('currentStatus is invalid');
   if (body.events !== undefined && !Array.isArray(body.events)) problems.push('events must be an array');
+  return problems;
+}
+
+function validateEvent(body: EventInput) {
+  const problems: string[] = [];
+  if (typeof body.eventType !== 'string' || body.eventType.trim() === '') problems.push('eventType is required');
+  if (!validDate(body.eventDate, false)) problems.push('eventDate must be YYYY-MM-DD');
+  if (typeof body.location !== 'string' || body.location.trim() === '') problems.push('location is required');
+  if (typeof body.actor !== 'string' || body.actor.trim() === '') problems.push('actor is required');
+  if (body.notes !== undefined && body.notes !== null && typeof body.notes !== 'string') problems.push('notes must be text');
   return problems;
 }
 
@@ -84,6 +102,18 @@ app.get('/api/batches/:id', async (req, res) => {
     const events = await query(`SELECT id, event_type AS "eventType", event_date AS "eventDate", location, actor, notes, created_at AS "createdAt" FROM batch_events WHERE batch_id = $1 ORDER BY event_date ASC, created_at ASC`, [result.rows[0].id]);
     return res.json({ ...result.rows[0], events: events.rows });
   } catch { return error(res, 500, 'Unable to read batch'); }
+});
+
+app.post('/api/batches/:id/events', requireAdmin, async (req, res) => {
+  const body = req.body as EventInput;
+  const problems = validateEvent(body);
+  if (problems.length) return error(res, 400, problems.join('; '));
+  try {
+    const batch = await query<{ id: string }>('SELECT id FROM batches WHERE batch_code = $1 OR id::text = $1', [req.params.id]);
+    if (!batch.rows[0]) return error(res, 404, 'Batch not found');
+    const result = await query(`INSERT INTO batch_events (batch_id, event_type, event_date, location, actor, notes) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, event_type AS "eventType", event_date AS "eventDate", location, actor, notes, created_at AS "createdAt"`, [batch.rows[0].id, body.eventType, body.eventDate, body.location, body.actor, body.notes ?? null]);
+    return res.status(201).json(result.rows[0]);
+  } catch { return error(res, 500, 'Unable to add batch event'); }
 });
 
 app.post('/api/batches', requireAdmin, async (req, res) => {
