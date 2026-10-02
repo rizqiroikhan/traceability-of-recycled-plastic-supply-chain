@@ -39,10 +39,13 @@ export default function AdminBatchDetailPage() {
     event.preventDefault();
     if (!batch) return;
     const form = new FormData(event.currentTarget);
-    const response = await fetch(`${api}/api/batches/${encodeURIComponent(batch.batchCode)}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ currentStatus: form.get('currentStatus') }) });
-    const data = await response.json();
-    if (!response.ok) { setMessage(data.error ?? 'Update failed'); return; }
-    setMessage('Batch updated successfully.'); await load();
+    setMessage('');
+    try {
+      const response = await fetch(`${api}/api/batches/${encodeURIComponent(batch.batchCode)}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ materialType: form.get('materialType'), weightKg: Number(form.get('weightKg')), sourceLocation: form.get('sourceLocation'), processedAt: form.get('processedAt') || null, currentStatus: form.get('currentStatus') }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? 'Update failed');
+      setMessage('Batch information updated successfully.'); await load();
+    } catch (error) { setMessage(error instanceof Error ? error.message : 'Update failed'); }
   }
 
   return <main className="admin-page">
@@ -50,7 +53,7 @@ export default function AdminBatchDetailPage() {
     {loading ? <div className="admin-panel"><p className="admin-muted">Loading batch…</p></div> : batch ? <>
       <header className="admin-header"><div><p className="admin-eyebrow">Batch detail</p><h1>{batch.batchCode}</h1><p className="admin-muted">Review this batch’s custody and processing history.</p></div><span className={`admin-status status-${batch.currentStatus.toLowerCase()}`}>{batch.currentStatus}</span></header>
       {message && <p className="admin-notice" role="status">{message}</p>}
-      <section className="admin-grid"><div className="admin-panel"><h2>Batch information</h2><dl className="admin-facts"><div><dt>Material</dt><dd>{batch.materialType}</dd></div><div><dt>Weight</dt><dd>{batch.weightKg} kg</dd></div><div><dt>Source</dt><dd>{batch.sourceLocation}</dd></div><div><dt>Processed</dt><dd>{batch.processedAt ?? 'Not yet processed'}</dd></div></dl><form onSubmit={update} className="admin-form"><label htmlFor="status">Current status</label><select id="status" name="currentStatus" defaultValue={batch.currentStatus}>{statuses.map((status) => <option key={status}>{status}</option>)}</select><button className="admin-button">Save status</button></form></div><div className="admin-panel"><h2>Event history</h2>{batch.events.length ? <ol className="admin-events">{batch.events.map((item) => <li key={`${item.eventDate}-${item.eventType}`}><strong>{item.eventType}</strong><span>{item.eventDate} · {item.location}</span><small>{item.actor}{item.notes ? ` — ${item.notes}` : ''}</small></li>)}</ol> : <p className="admin-muted">No events have been recorded for this batch.</p>}</div></section>
+      <section className="admin-grid"><div className="admin-panel"><h2>Edit batch information</h2><form onSubmit={update} className="admin-form"><div className="admin-form-grid"><div><label htmlFor="materialType">Material</label><select id="materialType" name="materialType" defaultValue={batch.materialType}>{['PET', 'HDPE', 'PP'].map((material) => <option key={material}>{material}</option>)}</select></div><div><label htmlFor="weightKg">Weight (kg)</label><input id="weightKg" name="weightKg" type="number" min="0.01" step="0.01" defaultValue={batch.weightKg} required /></div><div><label htmlFor="currentStatus">Current status</label><select id="currentStatus" name="currentStatus" defaultValue={batch.currentStatus}>{statuses.map((status) => <option key={status}>{status}</option>)}</select></div><div><label htmlFor="processedAt">Processed date</label><input id="processedAt" name="processedAt" type="date" defaultValue={batch.processedAt ?? ''} /></div></div><label htmlFor="sourceLocation">Source location</label><input id="sourceLocation" name="sourceLocation" defaultValue={batch.sourceLocation} required /><button className="admin-button">Save changes</button></form></div><div className="admin-panel"><h2>Event history</h2>{batch.events.length ? <ol className="admin-events">{batch.events.map((item) => <li key={`${item.eventDate}-${item.eventType}`}><strong>{item.eventType}</strong><span>{item.eventDate} · {item.location}</span><small>{item.actor}{item.notes ? ` — ${item.notes}` : ''}</small></li>)}</ol> : <p className="admin-muted">No events have been recorded for this batch.</p>}</div></section>
     </> : <div className="admin-panel"><p className="admin-error" role="alert">{message || 'Batch not found'}</p></div>}
   </main>;
 }
