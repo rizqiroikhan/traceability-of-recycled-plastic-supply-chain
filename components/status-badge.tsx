@@ -1,4 +1,4 @@
-import type { BatchStatus } from "@/lib/batch-data";
+type BatchStatus = "Collected" | "Processing" | "Ready" | "Delivered";
 
 const styles: Record<BatchStatus, string> = {
   Collected: "bg-amber/15 text-[#9A671D]",

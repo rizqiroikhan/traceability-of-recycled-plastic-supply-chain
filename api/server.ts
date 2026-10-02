@@ -1,14 +1,11 @@
 import 'dotenv/config';
-import cors from 'cors';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import { query } from './db';
 
-const app = express();
-const port = Number(process.env.API_PORT ?? 4000);
+export const app = express();
 const materials = new Set(['PET', 'HDPE', 'PP']);
 const statuses = new Set(['Collected', 'Processing', 'Ready', 'Delivered']);
 
-app.use(cors());
 app.use(express.json());
 
 type BatchInput = {
@@ -154,5 +151,3 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof SyntaxError) return error(res, 400, 'Malformed JSON');
   return error(res, 500, 'Unexpected server error');
 });
-
-app.listen(port, () => console.log(`API listening on http://localhost:${port}`));

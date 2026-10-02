@@ -6,11 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "dev:api": "tsx watch api/server.ts",
     "lint": "eslint ."
   },
   "dependencies": {
-    "cors": "^2.8.6",
     "dotenv": "^18.0.5",
     "express": "^5.2.1",
     "next": "15.5.7",
