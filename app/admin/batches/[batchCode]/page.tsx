@@ -7,7 +7,6 @@ import { useParams, useRouter } from 'next/navigation';
 type EventItem = { eventType: string; eventDate: string; location: string; actor: string; notes: string | null };
 type Detail = { batchCode: string; materialType: string; weightKg: string; sourceLocation: string; processedAt: string | null; currentStatus: string; events: EventItem[] };
 
-const api = 'http://localhost:4000';
 const statuses = ['Collected', 'Processing', 'Ready', 'Delivered'];
 
 export default function AdminBatchDetailPage() {
@@ -21,7 +20,7 @@ export default function AdminBatchDetailPage() {
 
   const load = useCallback(async () => {
     try {
-      const response = await fetch(`${api}/api/batches/${encodeURIComponent(batchCode)}`);
+      const response = await fetch(`/api/batches/${encodeURIComponent(batchCode)}`);
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? 'Could not load batch');
       setBatch(data);
@@ -41,7 +40,7 @@ export default function AdminBatchDetailPage() {
     const form = new FormData(event.currentTarget);
     setMessage('');
     try {
-      const response = await fetch(`${api}/api/batches/${encodeURIComponent(batch.batchCode)}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ materialType: form.get('materialType'), weightKg: Number(form.get('weightKg')), sourceLocation: form.get('sourceLocation'), processedAt: form.get('processedAt') || null, currentStatus: form.get('currentStatus') }) });
+      const response = await fetch(`/api/batches/${encodeURIComponent(batch.batchCode)}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ materialType: form.get('materialType'), weightKg: Number(form.get('weightKg')), sourceLocation: form.get('sourceLocation'), processedAt: form.get('processedAt') || null, currentStatus: form.get('currentStatus') }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? 'Update failed');
       setMessage('Batch information updated successfully.'); await load();

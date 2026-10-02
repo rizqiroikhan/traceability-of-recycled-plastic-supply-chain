@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { FormEvent, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
-const api = 'http://localhost:4000';
 const eventTypes = ['Collected', 'Sorted', 'Washed', 'Processed', 'In transit', 'Delivered'];
 
 export default function NewHistoryEventPage() {
@@ -26,7 +25,7 @@ export default function NewHistoryEventPage() {
     const form = new FormData(event.currentTarget);
     const payload = { eventType: form.get('eventType'), eventDate: form.get('eventDate'), location: form.get('location'), actor: form.get('actor'), notes: form.get('notes') || null };
     try {
-      const response = await fetch(`${api}/api/batches/${encodeURIComponent(batchCode)}/events`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+      const response = await fetch(`/api/batches/${encodeURIComponent(batchCode)}/events`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? 'Could not add progress event');
       router.push(`/admin/batches/${encodeURIComponent(batchCode)}`);

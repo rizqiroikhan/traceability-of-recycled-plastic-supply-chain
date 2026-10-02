@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-const api = 'http://localhost:4000';
 const materials = ['PET', 'HDPE', 'PP'];
 const statuses = ['Collected', 'Processing', 'Ready', 'Delivered'];
 
@@ -28,7 +27,7 @@ export default function NewBatchPage() {
       sourceLocation: form.get('sourceLocation'), processedAt: form.get('processedAt') || null, currentStatus: form.get('currentStatus'),
     };
     try {
-      const response = await fetch(`${api}/api/batches`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+      const response = await fetch('/api/batches', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? 'Could not create batch');
       router.push(`/admin/batches/${encodeURIComponent(data.batchCode)}`);
