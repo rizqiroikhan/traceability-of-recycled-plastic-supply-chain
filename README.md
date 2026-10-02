@@ -2,7 +2,7 @@
 
 Trace recycled-plastic batches from collection through processing and final use with a public journey view and a protected operations workspace.
 
-**Live deployment:** pending Vercel deployment and cloud database credentials.
+**Live deployment:** https://traceability-of-recycled-plastic-su.vercel.app
 
 ## Features
 
