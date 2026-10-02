@@ -102,7 +102,7 @@ Admin mutation routes require the bearer token returned by the login endpoint.
 - Progress events are stored in the existing relational database instead of browser state, so they remain available after refresh and can be consumed by the public traceability view.
 - Batch history is ordered by event date and creation time.
 - The admin UI uses the existing visual language: green action buttons, soft panels, status badges, responsive grids, and accessible focus states.
-- The existing API base URL remains `http://localhost:4000` for local development.
+- Browser API calls now use same-origin relative paths such as `/api/batches`; Next.js owns the API bridge and Express is no longer started as a separate `:4000` service.
 
 ## 6. Verification completed
 
@@ -154,5 +154,15 @@ The latest feature is available on the remote `master` branch.
 
 - Keep `FRAMEWORK.md` unchanged unless its instructions are explicitly being addressed; it was pre-existing and intentionally not included in the feature commit.
 - Start PostgreSQL with Docker Compose before using database-backed routes.
-- Run the API on port `4000` and the Next.js app on port `3001` when following the current local setup.
+- Run the single Next.js app; its `/api/*` catch-all invokes the reusable Express application in-process.
 - If Docker Desktop or the development server crashes, verify the listening ports and restart the affected service before diagnosing application code.
+
+## 11. Module 4 integration
+
+- Public `/`, `/batches`, and `/batches/[id]` pages now load PostgreSQL-backed data through relative API requests.
+- Added `app/api/[...slug]/route.ts` as the Next.js-to-Express bridge.
+- Preserved all existing Express routes, bearer-token headers, validation, and database business logic.
+- Removed the standalone `dev:api` script and obsolete CORS dependency.
+- Added loading, friendly failure, and retry handling for public network-backed views.
+- Added QA evidence in `docs/module-4-test-evidence.md`.
+- Module 4 commits pushed: `31adcb7` and `f9a3f10`.
